@@ -9,7 +9,10 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ManagePembicara from "./pages/ManagePembicara";
 import ManageEvents from "./pages/ManageEvents";
-import ManageCategories from "./pages/ManageCategories"; // 1. Pastikan file ini sudah ada di folder pages
+import ManageCategories from "./pages/ManageCategories";
+
+// Global API URL
+export const API_URL = "https://website-invofest-main.vercel.app";
 
 function App() {
   return (
@@ -29,8 +32,6 @@ function App() {
           {/* Halaman Manajemen Data Admin */}
           <Route path="/manage-pembicara" element={<ManagePembicara />} />
           <Route path="/manage-events" element={<ManageEvents />} />
-
-          {/* 2. Daftarkan rute kategori agar tidak loncat ke beranda */}
           <Route path="/manage-categories" element={<ManageCategories />} />
         </Route>
       </Route>

@@ -1,21 +1,25 @@
 import { useEffect, useState } from "react";
 import { Trash2, Edit3, X } from "lucide-react";
 
+const API_URL = "https://website-invofest-main.vercel.app";
+
 export default function ManagePembicara() {
   const [pembicara, setPembicara] = useState<any[]>([]);
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
 
-  // State untuk Edit
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editTitle, setEditTitle] = useState("");
 
   const fetchData = async () => {
-    // Pastikan URL API sudah sesuai dengan backend yang di-deploy
-    const res = await fetch("http://localhost:3000/api/pembicara");
-    const data = await res.json();
-    setPembicara(data);
+    try {
+      const res = await fetch(`${API_URL}/api/pembicara`);
+      const data = await res.json();
+      setPembicara(data);
+    } catch (error) {
+      console.error("Error fetching pembicara:", error);
+    }
   };
 
   useEffect(() => {
@@ -24,66 +28,82 @@ export default function ManagePembicara() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch("http://localhost:3000/api/pembicara", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, title }),
-    });
-    setName("");
-    setTitle("");
-    fetchData();
+    try {
+      await fetch(`${API_URL}/api/pembicara`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, title }),
+      });
+      setName("");
+      setTitle("");
+      fetchData();
+    } catch (error) {
+      console.error("Error adding pembicara:", error);
+    }
   };
 
-  // Fungsi untuk membuka modal edit
   const openEdit = (p: any) => {
     setEditingId(p.id);
     setEditName(p.name);
     setEditTitle(p.title);
   };
 
-  // Fungsi untuk menyimpan perubahan
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch(`http://localhost:3000/api/pembicara/${editingId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: editName, title: editTitle }),
-    });
-    setEditingId(null);
-    fetchData();
+    try {
+      await fetch(`${API_URL}/api/pembicara/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editName, title: editTitle }),
+      });
+      setEditingId(null);
+      fetchData();
+    } catch (error) {
+      console.error("Error updating pembicara:", error);
+    }
   };
 
   const deletePembicara = async (id: number) => {
     if (confirm("Hapus pembicara ini?")) {
-      await fetch(`http://localhost:3000/api/pembicara/${id}`, {
-        method: "DELETE",
-      });
-      fetchData();
+      try {
+        await fetch(`${API_URL}/api/pembicara/${id}`, {
+          method: "DELETE",
+        });
+        fetchData();
+      } catch (error) {
+        console.error("Error deleting pembicara:", error);
+      }
     }
   };
 
   return (
     <div className="p-8">
-      {/* FORM TAMBAH */}
-      <form onSubmit={handleAdd} className="mb-8 p-4 border rounded-2xl">
+      <form onSubmit={handleAdd} className="mb-8 bg-stone-50 p-6 rounded-2xl">
+        <h2 className="text-xl font-bold mb-4">Tambah Pembicara</h2>
         <input
-          placeholder="Nama"
-          className="block w-full p-2 mb-2 border rounded"
+          type="text"
+          placeholder="Nama Pembicara"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          required
+          className="w-full p-3 mb-4 border rounded-xl"
         />
         <input
-          placeholder="Judul/Title"
-          className="block w-full p-2 mb-2 border rounded"
+          type="text"
+          placeholder="Posisi/Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          required
+          className="w-full p-3 mb-4 border rounded-xl"
         />
-        <button type="submit" className="bg-blue-600 text-white p-2 rounded">
+        <button
+          type="submit"
+          className="w-full bg-[#7B1D3F] text-white p-3 rounded-xl font-bold"
+        >
           Tambah
         </button>
       </form>
 
-      {/* LIST DATA */}
       <div className="space-y-4">
         {pembicara.map((p) => (
           <div
@@ -112,7 +132,6 @@ export default function ManagePembicara() {
         ))}
       </div>
 
-      {/* MODAL EDIT */}
       {editingId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <form
@@ -127,13 +146,17 @@ export default function ManagePembicara() {
             </div>
             <input
               className="w-full p-3 mb-4 border rounded-xl"
+              placeholder="Nama"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
+              required
             />
             <input
               className="w-full p-3 mb-6 border rounded-xl"
+              placeholder="Title"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
+              required
             />
             <button
               type="submit"
